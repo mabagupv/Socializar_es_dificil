@@ -6,18 +6,21 @@ using UnityEngine;
 public class Dialogo : MonoBehaviour
 {
     [SerializeField]
-    private NPCDialogueSO dialogueData;
+    private NPCDialogueSO[] dialogueData;
 
     [SerializeField]
     private EmotionType emotion; // ← se asigna desde el Inspector
 
     TextMeshProUGUI objDialogo;
     public string frase = "";
+
+    [SerializeField]
     float velocidadEscribir = 0.05f;
     float tiempoEntreFrases = 2.0f;
     private List<int> bloquesDisponibles = new List<int>();
     int bloqueIdentificador = 0;
     bool escribiendoBloque = false;
+    bool esperandoContinuacion = false;
     int minListaBloques = 1;
     int maxListaBloques = 2;
 
@@ -52,21 +55,78 @@ public class Dialogo : MonoBehaviour
 
     public void IniciarDialogo()
     {
-        StartCoroutine(PlayDialogue(dialogueData, emotion)); // ← usa emotion directamente
+        if (escribiendoBloque)
+        {
+            return;
+        }
+
+        StartCoroutine(PlayDialogues(dialogueData));
     }
 
-    private IEnumerator PlayDialogue(NPCDialogueSO dialogue, EmotionType currentEmotion)
+    private IEnumerator PlayDialogues(NPCDialogueSO[] dialogues)
     {
+        if (dialogues == null || dialogues.Length == 0)
+        {
+            yield break;
+        }
+
         escribiendoBloque = true;
 
+        for (int i = 0; i < dialogues.Length; i++)
+        {
+            NPCDialogueSO dialogue = dialogues[i];
+
+            if (dialogue == null)
+            {
+                continue;
+            }
+
+            yield return StartCoroutine(PlayDialogue(dialogue));
+
+            if (HasPendingDialogue(dialogues, i + 1))
+            {
+                esperandoContinuacion = true;
+                yield return new WaitUntil(() => esperandoContinuacion == false);
+            }
+        }
+
+        escribiendoBloque = false;
+    }
+
+    private bool HasPendingDialogue(NPCDialogueSO[] dialogues, int startIndex)
+    {
+        for (int i = startIndex; i < dialogues.Length; i++)
+        {
+            if (dialogues[i] != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //REPRODUCE EL DIALOGO LETRA POR LETRA
+    private IEnumerator PlayDialogue(NPCDialogueSO dialogue)
+    {
+        if (dialogue.blocks == null)
+        {
+            yield break;
+        }
+
+        EmotionType currentEmotion = emotion;
+
+        // para cada bloque de diálogo, dependiendo de su tipo, se asigna la frase a mostrar y se modifica el éxito según la emoción actual
         foreach (DialogueBlock block in dialogue.blocks)
         {
             Debug.Log($"Procesando bloque: {block.blockType}");
 
+            //si es fijo
             if (block.blockType == DialogueBlockType.Fixed)
             {
                 frase = block.fixedPhrase;
             }
+            //en caso contrario, si es emocional
             else if (block.blockType == DialogueBlockType.Emotional)
             {
                 if (block.TryGetEmotionalResponse(currentEmotion, out EmotionalResponse response))
@@ -78,8 +138,6 @@ public class Dialogo : MonoBehaviour
 
             yield return StartCoroutine(EscribirLento());
         }
-
-        escribiendoBloque = false;
     }
 
     //ESCRIBE "FRASE" EN PANTALLA LETRA POR LETRA, ESPERA tiempoEntreFrases SEGUNDOS Y BORRA EL TEXTO.
@@ -92,6 +150,43 @@ public class Dialogo : MonoBehaviour
         }
         yield return new WaitForSeconds(tiempoEntreFrases);
         objDialogo.text = " ";
+    }
+
+    public void ContinuarDialogo()
+    {
+
+
+        if (!escribiendoBloque || !esperandoContinuacion)
+        {
+            return;
+        }
+
+        esperandoContinuacion = false;
+    }
+
+    //Para pruebas: lo vinculo desde los botones del UI
+    public void AplicarEmocion(string newEmotion)
+    {
+        if (newEmotion == "neutral")
+        {
+            emotion = EmotionType.Neutral;
+        }
+        else if (newEmotion == "feliz")
+        {
+            emotion = EmotionType.Feliz;
+        }
+        else if (newEmotion == "enfadado")
+        {
+            emotion = EmotionType.Enfadado;
+        }
+        else if (newEmotion == "triste")
+        {
+            emotion = EmotionType.Triste;
+        }
+        else if (newEmotion == "sorprendido")
+        {
+            emotion = EmotionType.Sorprendido;
+        }
     }
 }
 
