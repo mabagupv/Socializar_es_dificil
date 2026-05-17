@@ -1,12 +1,16 @@
-using UnityEngine;
-using TMPro;
 using System.Collections;
-using Unity.VisualScripting;
 using System.Collections.Generic;
-
+using TMPro;
+using UnityEngine;
 
 public class Dialogo : MonoBehaviour
 {
+    [SerializeField]
+    private NPCDialogueSO dialogueData;
+
+    [SerializeField]
+    private EmotionType emotion; // ← se asigna desde el Inspector
+
     TextMeshProUGUI objDialogo;
     public string frase = "";
     float velocidadEscribir = 0.05f;
@@ -16,17 +20,14 @@ public class Dialogo : MonoBehaviour
     bool escribiendoBloque = false;
     int minListaBloques = 1;
     int maxListaBloques = 2;
-    public string emocion = "neutral";
+
     public float exito = 0.5f;
 
-    //public int[] listadoFrases;
-    
     void Start()
     {
         objDialogo = this.GetComponent<TextMeshProUGUI>();
         objDialogo.text = " ";
 
-        //Rellenamos la lista de bloques. El mínimo se incluye, el máximo no. El 0 es la introducción, así que no se incluye. 
         for (int i = minListaBloques; i < maxListaBloques; i++)
         {
             bloquesDisponibles.Add(i);
@@ -36,36 +37,66 @@ public class Dialogo : MonoBehaviour
     void Update()
     {
         Debug.Log(bloqueIdentificador);
-     if (escribiendoBloque == false)
+        if (escribiendoBloque == false)
         {
-            //INTRODUCCIÓN
             if (bloqueIdentificador == 0)
             {
-                StartCoroutine(Intro());
+                // StartCoroutine(Intro());
             }
-            //BLOQUE 1
-            else if  (bloqueIdentificador == 1)
+            else if (bloqueIdentificador == 1)
             {
-                StartCoroutine(Bloque1());
+                // StartCoroutine(Bloque1());
             }
-
         }
     }
 
+    public void IniciarDialogo()
+    {
+        StartCoroutine(PlayDialogue(dialogueData, emotion)); // ← usa emotion directamente
+    }
+
+    private IEnumerator PlayDialogue(NPCDialogueSO dialogue, EmotionType currentEmotion)
+    {
+        escribiendoBloque = true;
+
+        foreach (DialogueBlock block in dialogue.blocks)
+        {
+            Debug.Log($"Procesando bloque: {block.blockType}");
+
+            if (block.blockType == DialogueBlockType.Fixed)
+            {
+                frase = block.fixedPhrase;
+            }
+            else if (block.blockType == DialogueBlockType.Emotional)
+            {
+                if (block.TryGetEmotionalResponse(currentEmotion, out EmotionalResponse response))
+                {
+                    frase = response.phrase;
+                    exito += response.successModifier;
+                }
+            }
+
+            yield return StartCoroutine(EscribirLento());
+        }
+
+        escribiendoBloque = false;
+    }
+
+    //ESCRIBE "FRASE" EN PANTALLA LETRA POR LETRA, ESPERA tiempoEntreFrases SEGUNDOS Y BORRA EL TEXTO.
+    IEnumerator EscribirLento()
+    {
+        foreach (char c in frase)
+        {
+            objDialogo.text += c;
+            yield return new WaitForSeconds(velocidadEscribir);
+        }
+        yield return new WaitForSeconds(tiempoEntreFrases);
+        objDialogo.text = " ";
+    }
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 
     IEnumerator Intro()
     {
@@ -166,18 +197,7 @@ public class Dialogo : MonoBehaviour
 
 
 
-    //ESCRIBE "FRASE" EN PANTALLA LETRA POR LETRA, ESPERA tiempoEntreFrases SEGUNDOS Y BORRA EL TEXTO.
 
-    IEnumerator EscribirLento(){
-    
-    foreach (char c in frase)
-    {
-        objDialogo.text += c;
-        yield return new WaitForSeconds(velocidadEscribir);
-    }
-    yield return new WaitForSeconds(tiempoEntreFrases);
-    objDialogo.text = " ";
-    }
 
     
 
@@ -197,7 +217,7 @@ public class Dialogo : MonoBehaviour
         }
 
 
-        //Elige un bloque al azar de la lista, lo asigna como bloque elegido y lo borra de la lista. 
+        //Elige un bloque al azar de la lista, lo asigna como bloque elegido y lo borra de la lista.
         bloqueIdentificador = Random.Range(minListaBloques, maxListaBloques);
         if (bloquesDisponibles.Contains(bloqueIdentificador))
         {
@@ -213,6 +233,8 @@ public class Dialogo : MonoBehaviour
 
 
 }
+*/
+
 /*
         if (emocion == "neutral")
         {

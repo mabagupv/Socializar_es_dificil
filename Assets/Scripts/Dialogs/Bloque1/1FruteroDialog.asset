@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dee4244c3227e8d4bc7ba6ae2f4f5ea, type: 3}
+  m_Name: 1FruteroDialog
+  m_EditorClassIdentifier: Assembly-CSharp::NPCDialogueSO
+  speakerName: Frutero
+  speakerSprite: {fileID: 0}
+  blocks:
+  - blockType: 0
+    characterSprite: {fileID: 0}
+    fixedPhrase: "Nuevo curro en la tienda \xBFeh?. Tranquilo, no todos estamos hechos
+      para el \xE9xito \xBFsabes a lo que me refiero?"
+    emotionalResponses: []
+  - blockType: 0
+    characterSprite: {fileID: 0}
+    fixedPhrase: "Hay gente que tiene que suplir su falta de talento de alguna manera\u2026
+      no todos podemos ganarnos la vida haciendo cosas interesantes"
+    emotionalResponses:
+    - emotion: 0
+      phrase: Al final es como funciona el mundo, nos guste o no.
+      successModifier: 0.1
+    - emotion: 1
+      phrase: "Sab\xEDa que lo entender\xEDas, no todo el mundo est\xE1 hecho para
+        triunfar"
+      successModifier: 0
+    - emotion: 2
+      phrase: "No pretend\xEDa ofender, eh? Que sensible te has vuelto\u2026"
+      successModifier: 0
+    - emotion: 3
+      phrase: "Pero hombre, \xA1no te pongas triste! Este curro es temporal, \xBFverdad?"
+      successModifier: 0
+  - blockType: 1
+    characterSprite: {fileID: 0}
+    fixedPhrase: "Hay gente que tiene que suplir su falta de talento de alguna manera\u2026
+      no todos podemos ganarnos la vida haciendo cosas interesantes"
+    emotionalResponses:
+    - emotion: 0
+      phrase: Al final es como funciona el mundo, nos guste o no.
+      successModifier: 0.1
+    - emotion: 1
+      phrase: "Sab\xEDa que lo entender\xEDas, no todo el mundo est\xE1 hecho para
+        triunfar"
+      successModifier: 0
+    - emotion: 2
+      phrase: "No pretend\xEDa ofender, eh? Que sensible te has vuelto\u2026"
+      successModifier: 0
+    - emotion: 3
+      phrase: "Pero hombre, \xA1no te pongas triste! Este curro es temporal, \xBFverdad?"
+      successModifier: 0
